@@ -1,12 +1,26 @@
 import Vue from 'vue'
-import App from './App.vue'
+import VueRouter from 'vue-router'
 import VueYoutube from 'vue-youtube'
 
+import App from './App.vue'
+
+import { routes } from './routes'
+
+Vue.use(VueRouter)
 Vue.use(VueYoutube)
+
+const router = new VueRouter({
+  mode: 'history',
+  routes
+})
 
 new Vue({
   el: '#app',
-  render: h => h(App)
+  router,
+  // store,
+  // store vs firebase ?
+  template: '<App/>',
+  components: { App }
 })
 
 
