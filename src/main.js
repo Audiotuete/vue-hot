@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 Vue.use(VueYoutube)
 
 const router = new VueRouter({
-  mode: 'history',
+  // mode: 'history',
   routes
 })
 

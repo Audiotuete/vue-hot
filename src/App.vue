@@ -24,8 +24,19 @@ export default {
 <style lang="scss">
 
 body {
-  background-color: #fff;
+  background-color: #f7f7f7;
   margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Open Sans';
+  font-size: 2rem;
+
+  a {
+  color: black;
+  cursor: default;
+  text-decoration: none;
+}
 }
 
 iframe {
@@ -36,5 +47,8 @@ iframe {
   .ytp-button {
     display: none;
   }
+
+
+
 }
 </style>

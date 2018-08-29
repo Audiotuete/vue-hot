@@ -1,26 +1,42 @@
 
 <template>
   <div>
-    <!-- <button @click="add">Add card</button>
-    <button @click="remove">Remove card</button>
-    <button @click="swing">Swing card</button> -->
-
     <vue-swing
-      @throwout="onThrowout"
+      @throwoutleft="vote(answerValues.NO)"
+      @throwoutup="showNotepad = true"
+      @throwoutright="vote(answerValues.YES)"
       :config="config"
       ref="vueswing"
-      class=swing-wrapper
+      class="swing-wrapper"
     >
       <div class="card"></div>  
-      <div 
+      <div
+        v-if="!showNotepad"
         v-for="card in cards"
         :key="card"
         class="card"
         ref="card">
-          <youtube id="youtube-player" video-id :player-vars="playerVars" ref="youtube" @playing="playing"></youtube>
-          <button class="button-play" @click="playVideoIndex(2)"></button>
+          <youtube id="youtube-player" 
+            video-id 
+            :player-vars="playerVars" 
+            ref="youtube" 
+            @playing="playing" 
+            >
+          </youtube>
+          <button v-if="!isPlaying" class="button-play" @click="playVideoIndex(2)"><i class="fa fa-play"></i></button>
+          <button class="button-replay" style="marigin: 20px" @click="replayVideo()"><i class="fa fa-undo"></i></button>
+          
       </div>
+
     </vue-swing>
+    
+    <div v-if="!showNotepad" class="choicebar">
+      <div class="choice-container">
+        <button @click="vote(answerValues.NO)" class="button-no" href='#'><i class="sl-icon icon-close"></i></button>
+        <button @click="showNotepad = true" class="button-note" href='#'><i class="sl-icon icon-note"></i></button>
+        <button @click="vote(answerValues.YES)" class="button-yes" href='#'><i class="sl-icon icon-check"></i></button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,6 +49,9 @@ export default {
   data () {
     return {
       cards: ['A'],
+      answerValues: {'NO': 0, 'YES': 1, 'NOTE': 2},
+      isPlaying: false,
+      showNotepad: false,
       playerVars: {
         listType: 'playlist',
         list: 'PLglaqunAuU1jKrln443Vi2xkwX_Oimg_G',
@@ -44,9 +63,12 @@ export default {
         modestbranding: 0,
         cc_load_policy: 1
       }
+
+
     }
   },
   computed: {
+
     config () {
       return {        
         allowedDirections: [
@@ -65,48 +87,50 @@ export default {
         }
       }
     },
-    player () {
-      return this.$refs.youtube[0].player
-    },
   },
   methods: {
-    // add () {
-    //   this.cards.push(`${this.cards.length}`)
-    // },
-    // remove () {
-    //   this.swing()
-    //   setTimeout(() => {
-    //     this.cards.pop()
-    //   }, 100)
-    // },
-    // swing () {
-    //   const cards = this.$refs.vueswing.cards
-    //   cards[cards.length - 1].throwOut(
-    //     Math.random() * 100 - 50,
-    //     Math.random() * 100 - 50
-    //   )
-    // },
-    onThrowout ({ target, throwDirection }) {
-      console.log(`Threw out ${target.textContent}!`)
-      this.cards.push(Math.random()) 
-      this.cards.shift()
+    vote(value = -1) {
+
+      
+      this.saveCardAnswer(value, null)
     },
+
+    makeNote(value = -1, note = null) {
+      
+      this.saveCardAnswer(value, note)
+    },
+
+    requestNewCard() {
+      // Query here
+      this.cards.push(Math.random())	
+    },
+
+    saveCardAnswer(value, note) {
+      // Mutation here
+      console.log(value, note)
+      this.cards.shift()
+      this.requestNewCard()
+
+    },
+
     playVideoIndex (index) {
       this.$refs.youtube[0].player.playVideoAt(index)
+      // setInterval(() => this.isPlaying = true, 200)
     },
+
+    replayVideo() {
+      this.$refs.youtube[0].player.stopVideo()
+      this.$refs.youtube[0].player.playVideo()
+    },
+
     playing () {
-      // console.log(this.player.getPlaylist())
-      // this.player.getPlaylistIndex()
-      //   .then((index) => {
-      //     this.currentVideoIndex = index
-      //   })
-    }
+      this.isPlaying = true;
+    } 
   }
 }
-
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 
 .swing-wrapper {
   display: flex;
@@ -114,42 +138,97 @@ export default {
   align-items: center;
   position: relative;
   padding-bottom: 150%;
-  // overflow: hidden;
 }
 .card {
-  top: 10vh;
+  top: 6vh;
   position: absolute;
-  height: calc(79.5% * 1.3);
-  width: calc(68.5% * 1.3);
+  height: calc(79.5% * 1.35);
+  width: calc(68.5% * 1.35);
   display: flex;
   justify-content: center;
   align-items: center;  
   background-color: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  border-radius: 1.5vh;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
   overflow: hidden;
+}
+.button-play {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  border-radius: 10px;
+  height: 12.5vw;
+  width: 12.5vw;
+  border: none;
+  outline: none;
+  // color: #fff;
+  background-color: rgba(255, 255, 255, .95);
 
-  .button-play {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 4%;
-    left: 5%;
-    z-index: 99;
-    font-size: 6rem;
-    border-radius: 50%;
-    height: 7rem;
-    width: 7rem;
-    outline: none;
-    border-color: none;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.5);
-    &::after {
-      position: absolute;
-      top: -0.6rem;
-      content: "▸";
-    }
+  .fa-play {
+    color: #4A90E2;
+    padding: 0.75vw 0 0 0.75vw;
   }
 }
+.button-replay {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 72vh;
+  left: 5vw;
+  z-index: 999;
+  border-radius: 10px;
+  height: 8vw;
+  width: 8vw;
+  border: none;
+  outline: none;
+  // color: #fff;
+  background-color: rgba(0, 0, 0, .5);
+
+  .fa-undo {
+    font-size: 5vw;
+    
+  }
+
+}
+.choicebar {
+  z-index: 99;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 84vh;
+  height: 14vh;
+  width: 100%;
+  background: rgba(255,255,255,1);
+  box-shadow: 0 0 6px 0 rgba(0,0,0,0.25);
+}
+.choice-container {
+  width: 85vw;
+  display: flex;
+  padding-top: 1px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.sl-icon {
+  color: rgb(181, 181, 181);
+  font-size: 12vw;
+
+  &.icon-close {
+    font-size: 12.5vw;
+    color: rgba(208, 2, 26, .5)
+  }
+
+  &.icon-note {
+    color: rgba(245, 165, 35, .6)
+  }
+
+  &.icon-check {
+    font-size: 12.5vw;
+    color: rgba(125, 211, 33, 0.75)
+  }
+
+}
+
 </style>
